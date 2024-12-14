@@ -3,8 +3,8 @@
 {% block body %}
 
 <h1 class="text-center text-danger">Thống kê tần suất sử dụng phòng</h1>
-<!--<div style="justify-content: center;" class="row">-->
-<!--    <div class="col-md-8 col-xs-12">-->
+<div style="justify-content: center;" class="row">
+    <div class="col-md-8 col-xs-12">
 <table class="table text-center">
     <form>
         <div style="display: flex; align-items: center; justify-content: space-between; margin: 0 auto; margin-bottom: 1rem;"
@@ -43,12 +43,9 @@
     </tr>
     {% endfor %}
 </table>
+        <canvas id="myChart_2"></canvas>
 <div>
-    <canvas id="myChart_2"></canvas>
 </div>
-<!--    </div>-->
-<!--    <canvas id="myChart"></canvas>-->
-<!--</div>-->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let labels =[]
