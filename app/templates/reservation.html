@@ -1,0 +1,83 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero text-center text-white" style="height: 400px; overflow: hidden;">
+    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid w-100">
+    <div class="position-absolute top-50 start-50 translate-middle w-100">
+        <h2 class="fw-bold mb-1" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome to LMAO</h2>
+        <h1 class="display-4 fw-bold" style="font-size: 3rem; font-family: 'Arial', sans-serif;">The Best Hotel</h1>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <p class="mb-0"
+                    style="height: 350px; font-size: 70px; font-weight: Arial;">Reservation</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mb-5 mt-5">
+    <!-- Header -->
+    <div class="card-header text-center header-title py-3 text-white" style="background: #0C0F24;">
+        <h4 class="mb-0 fs-2">Reservation Check</h4>
+    </div>
+    <!-- Reservation Check Card -->
+    <div class="card shadow border-0 px-4">
+        <!-- Info -->
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">Booking: Full name customer</th>
+                    <th scope="col">Room: Room name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Check-in time: dd/mm/yyyy</td>
+                    <td>Check-out time: dd/mm/yyyy</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Customer Info Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">Order</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Customer-type</th>
+                    <th scope="col">Identification</th>
+                    <th scope="col">Address</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Full name</td>
+                    <td>Domestic</td>
+                    <td>018522384562</td>
+                    <td>Address details</td>
+                </tr>
+                <!-- Add more rows if necessary -->
+                <tr>
+                    <td colspan="5" class="text-center">Có thêm thì thêm</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total Price and Pay Button -->
+        <div class="row align-items-center mt-4">
+            <div class="col-md-9">
+                <h5><strong>Total Price:</strong> xxx.xxx.xxx</h5>
+            </div>
+            <div class="col-md-3 text-end mb-2">
+                <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">PAY</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

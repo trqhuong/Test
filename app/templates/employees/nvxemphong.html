@@ -1,0 +1,104 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<!-- Navigation Tabs -->
+<div class="container mt-4">
+    <ul class="nav nav-tabs justify-content-around fs-5">
+        <li class="nav-item">
+            <a class="nav-link active" style="background: #999292;" href="/nvxemphong">Reservation & Rent</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" style="background: #EFEFEF;" href="/nvcheckin">Check-in</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" style="background: #EFEFEF;" href="/nvcheckout">Check-out</a>
+        </li>
+    </ul>
+</div>
+
+<!-- Search Section -->
+<div class="container mt-4">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label for="checkin" class="form-label rounded-0">Check-in</label>
+            <input type="date" id="checkin" class="form-control rounded-0 text-center">
+        </div>
+        <div class="col-md-3">
+            <label for="checkout" class="form-label rounded-0">Check-out</label>
+            <input type="date" id="checkout" class="form-control rounded-0 text-center">
+        </div>
+        <div class="col-md-3">
+            <label for="rooms" class="form-label rounded-0">Rooms</label>
+            <select id="rooms" class="form-select rounded-0 text-center">
+                <option value="1">1 Room</option>
+                <option value="2">2 Rooms</option>
+                <option value="3">3 Rooms</option>
+                <option value="4">4 Rooms</option>
+            </select>
+        </div>
+        <div class="col-md-3 text-md-end text-center mt-md-4">
+            <button class="btn btn-secondary rounded-0 mt-4">Search</button>
+        </div>
+    </div>
+</div>
+
+<!-- Room Cards Section -->
+<div class="container mt-4 mb-3">
+    <div class="row g-4">
+        <!-- Room Card 1 -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/room1.jpg') }}" class="card-img-top" alt="Room Image">
+                <div class="card-body text-white" style="background: #5B6E8A;">
+                    <h5 class="card-title">Room name - Room type</h5>
+                    <p class="card-text">
+                        Information 1<br>
+                        Information 2<br>
+                        Information 3<br>
+                    </p>
+                    <p>Price: $789</p>
+                    <div class="text-end">
+                        <a href="/nvbook" class="btn btn-light rounded-0">Choose</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Room Card 2 -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/room2.jpg') }}" class="card-img-top" alt="Room Image">
+                <div class="card-body text-white" style="background: #5B6E8A;">
+                    <h5 class="card-title">Room name - Room type</h5>
+                    <p class="card-text">
+                        Information 1<br>
+                        Information 2<br>
+                        Information 3<br>
+                    </p>
+                    <p>Price: $456</p>
+                    <div class="text-end">
+                        <a href="/nvbook" class="btn btn-light rounded-0">Choose</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Room Card 3 -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/room3.jpg') }}" class="card-img-top" alt="Room Image">
+                <div class="card-body text-white" style="background: #5B6E8A;">
+                    <h5 class="card-title">Room name - Room type</h5>
+                    <p class="card-text">
+                        Information 1<br>
+                        Information 2<br>
+                        Information 3<br>
+                    </p>
+                    <p>Price: $123</p>
+                    <div class="text-end">
+                        <a href="/nvbook" class="btn btn-light rounded-0">Choose</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

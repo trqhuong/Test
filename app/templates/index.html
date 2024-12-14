@@ -1,0 +1,99 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero position-relative text-center text-white" style="height: 800px; overflow: hidden;">
+    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
+    <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
+    <div class="position-absolute top-50 start-50 translate-middle w-100">
+         <h2 class="fw-bold" style="font-size: 4rem; font-family: 'Arial', sans-serif; margin-bottom: 1rem;">Welcome to LMAO</h2>
+        <h1 class="display-4 fw-bold" style="font-size: 3rem; font-family: 'Arial', sans-serif; margin-bottom: 15rem;">The Best Hotel</h1>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <p class="mb-0 "
+                   style="height: 70px; line-height: 150px; font-size: 95px; font-weight: Arial;">Reserve!</p>
+            </div>
+            <div class="col-auto">
+                <label for="check-in" class="form-label fw-Arial" style="font-size: 30px;">Check-in</label>
+                <input type="date" id="check-in" class="form-control rounded-0"
+                       style="height: 60px; font-size: 23px;" min="{{ date_today }}" value="{{ date_today }}">
+            </div>
+            <div class="col-auto">
+                <label for="check-out" class="form-label fw-Arial" style="font-size: 30px;">Check-out</label>
+                <input type="date"  id="check-out" class="form-control rounded-0"
+                       style="height: 60px; font-size: 23px;" min="{{ date_today }}">
+            </div>
+            <div class="col-auto">
+                <label for="rooms" class="form-label fw-Arial" style="font-size: 30px;">Rooms</label>
+                <select id="rooms" class="form-select rounded-0"
+                        style="height: 60px; font-size: 23px;">
+                    <option value="1">Single Bedroom</option>
+                    <option value="2">Twin Bedroom</option>
+                    <option value="3">Double Bedroom</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn mt-5 text-white rounded-0" style="background: #0C0F24; height: 70px; font-size: 30px;">Check Availability</button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Rooms Section -->
+    <section class="container my-5">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 save-date">
+            <!-- Room Card -->
+            {% for room in rooms %}
+                <div class="col">
+                    <div class="card text-white" style="background: #042453; border-radius:  0 0 15px 15px;">
+                        <img src="{{ room.image }}" class="card-img-top"
+                             alt="Room Image"
+                             style="border-top-left-radius: 0px; border-top-right-radius:  0 0 15px 15px;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ room.name }}</h5>
+                            <p class="card-text">Room Type: {{ room.room_type.name }}</p>
+                            <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
+                            <div class="d-flex justify-content-end ">
+                                <a href="/room-detail/?room_id={{ room.id }}" class="btn btn-primary w-50 bg-white text-black view"
+                                   style="border-radius: 60px;">View Detail</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Pagination -->
+    <div class="container my-4 ml-50">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-end fw-bold">
+                {% for page_index in range(1, count_room + 1) %}
+                    <li class="page-item"><a class="page-link text-black" style="background: #D9D9D966;"
+                                             href="/?page={{ page_index }}">{{ page_index }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+
+{#    <script>#}
+{#        let saveDate = document.querySelector(".save-date")#}
+{#        saveDate.addEventListener('click', function (event) {#}
+{#            if(event.target.classList.contains("view")){#}
+{#                let checkin = document.getElementById("check-in")#}
+{#                let checkout = document.getElementById("check-out")#}
+{##}
+{#                fetch("/api/save_date", {#}
+{#                    method: 'POST',#}
+{#                    headers: {#}
+{#                        'Content-Type': 'application/json'#}
+{#                    },#}
+{#                    body: JSON.stringify({#}
+{#                        "checkin": checkin,#}
+{#                        "checkout": checkout#}
+{#                    })#}
+{#                })            }#}
+{##}
+{#        })#}
+{#    </script>#}
+{% endblock %}

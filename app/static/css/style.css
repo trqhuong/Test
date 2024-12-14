@@ -1,0 +1,95 @@
+a {
+    text-decoration: none;
+}
+
+.error-message {
+    text-align: left;
+    font-style: italic;
+}
+
+.login-container {
+    height: 70vh;
+    background: url('https://res.cloudinary.com/dndsrbf9s/image/upload/v1731984424/4bd6eb8619e6625fe568afdd8682c2ba_gknloh.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    background-color: rgba(14, 16, 37, 0.7);
+    border-radius: 15px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+    color: white;
+}
+
+.login-card .form-control {
+    border-radius: 30px;
+}
+
+.login-card .btn {
+    border-radius: 30px;
+}
+
+.login-card a {
+    color: white;
+    text-decoration: underline;
+}
+
+.login-card a:hover {
+    color: #ddd;
+    text-decoration: none;
+}
+
+/*=============================*/
+/* Container cho nút */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+}
+
+/* Ẩn input checkbox */
+.switch.cb {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Dạng slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e0e0e0;
+    transition: 0.4s;
+    border-radius: 25px;
+}
+
+/* Hình tròn bên trong slider */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 19px;
+    width: 19px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+/* Khi checkbox được chọn */
+input:checked + .slider {
+    background-color: #1175c7;
+}
+
+input:checked + .slider:before {
+    transform: translateX(25px);
+}
