@@ -10,11 +10,6 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
 
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">{{ category }}</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
                             <!-- Modal Header -->
                             <div class="modal-header">
                                 <h4 class="modal-title">{{ category }}</h4>
@@ -31,42 +26,44 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                             </div>
+
                         </div>
                     </div>
                 </div>
-                <!-- End popup -->
             {% endfor %}
         {% endif %}
     {% endwith %}
 
-<div class="login-container">
-    <div class="login-card text-center">
-        <h2 class="mb-3">LOG IN</h2>
-        <div class="mb-4">
-            <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+    <div class="login-container">
+        <div class="login-card text-center">
+            <h2 class="mb-3">LOG IN</h2>
+            <div class="mb-4">
+                <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+            </div>
+            <form method="post" action="/login" class="text-center">
+                {% if err_message %}
+                    <div class="alert alert-danger">
+                        <strong>ERROR!</strong> {{ err_message }}
+                    </div>
+                {% endif %}
+                <div class="mb-3 mt-3">
+                    <input type="text" class="form-control" id="email" placeholder="Enter username" name="username"
+                           required>
+                </div>
+
+                <div class="mt-3 mb-3">
+                    <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password"
+                           required>
+                </div>
+
+                <div class="mb-3 text-end">
+                    <a href="/forgot-password">Forgot Password</a>
+                </div>
+                <button type="submit" class="btn w-100 mb-3 text-white" style="background: #010C15">LOG IN</button>
+                <div>
+                    <a href="/register" class="d-block">Create new account</a>
+                </div>
+            </form>
         </div>
-        <form method="post" action="/login" class="text-center">
-            {% if err_message %}
-            <div class="alert alert-danger">
-                <strong>ERROR!</strong> {{ err_message }}
-            </div>
-            {% endif %}
-            <div class="mb-3 mt-3">
-                <input type="text" class="form-control" id="email" placeholder="Enter username" name="username" required>
-            </div>
-
-            <div class="mt-3 mb-3">
-                <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password" required>
-            </div>
-
-            <div class="mb-3 text-end">
-                <a href="/forgot-password">Forgot Password</a>
-            </div>
-            <button type="submit" class="btn w-100 mb-3 text-white" style="background: #010C15">LOG IN</button>
-            <div>
-                <a href="/register" class="d-block">Create new account</a>
-            </div>
-        </form>
     </div>
-</div>
 {% endblock %}

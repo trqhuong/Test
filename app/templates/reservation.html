@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-center row fs-4 w-100">
             <div class="col-auto">
                 <p class="mb-0"
-                    style="height: 350px; font-size: 70px; font-weight: Arial;">Reservation</p>
+                   style="height: 350px; font-size: 70px; font-weight: Arial;">Reservation</p>
             </div>
         </div>
     </div>
@@ -28,14 +28,14 @@
             <table class="table table-bordered">
                 <thead class="table-light">
                 <tr>
-                    <th scope="col">Booking: Full name customer</th>
-                    <th scope="col">Room: Room name</th>
+                    <th scope="col">Booking: {{ customer.name }}</th>
+                    <th scope="col">Room: {{ room.name }}</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                    <td>Check-in time: dd/mm/yyyy</td>
-                    <td>Check-out time: dd/mm/yyyy</td>
+                    <td>Check-in time: {{ session['room_reservation_form']['check_in_date'] }}</td>
+                    <td>Check-out time: {{ session['room_reservation_form']['check_out_date'] }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -50,34 +50,41 @@
                     <th scope="col">Customer</th>
                     <th scope="col">Customer-type</th>
                     <th scope="col">Identification</th>
-                    <th scope="col">Address</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
                     <td>1</td>
-                    <td>Full name</td>
-                    <td>Domestic</td>
-                    <td>018522384562</td>
-                    <td>Address details</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.customer_type.type }}</td>
+                    <td>{{ customer.identification_card }}</td>
                 </tr>
-                <!-- Add more rows if necessary -->
+
+                {% for i in range(0, length) %}
                 <tr>
-                    <td colspan="5" class="text-center">Có thêm thì thêm</td>
+                    <td>{{ i + 2 }}</td>
+                    <td>{{ session['guest'][i]['name'] }}</td>
+                    <td>{{ session['guest'][i]['customer_type'] }}</td>
+                    <td>{{ session['guest'][i]['identification_card'] }}</td>
                 </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>
 
         <!-- Total Price and Pay Button -->
-        <div class="row align-items-center mt-4">
+        <form method="post" action="/payment" class="row align-items-center mt-4">
             <div class="col-md-9">
-                <h5><strong>Total Price:</strong> xxx.xxx.xxx</h5>
+                <h5><strong>Total Price:</strong> {{ "{:,.0f}".format(session['room_reservation_form']['total_amount'])
+                    }}$</h5>
+                <h5><strong style="color: red">Deposit Payment:</strong> {{
+                    "{:,.0f}".format(session['room_reservation_form']['deposit']) }}$</h5>
             </div>
             <div class="col-md-3 text-end mb-2">
-                <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">PAY</button>
+                <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">PAY
+                </button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 {% endblock %}

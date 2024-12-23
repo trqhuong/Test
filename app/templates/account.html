@@ -8,57 +8,57 @@
             <div class="card shadow border-0 rounded">
                 <!-- Card Header -->
                 <div class="card-header text-white text-center py-3" style="background: #0C0F24;">
-                    <h4 class="mb-0">Thông Tin Tài Khoản</h4>
+                    <h4 class="mb-0">{{ current_user.name }} Information</h4>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="row g-4">
                         <!-- Avatar -->
                         <div class="col-md-4 text-center">
-                            <img src="https://via.placeholder.com/150" alt="Avatar"
+                            <img src="{{ current_user.avatar }}" alt="Avatar"
                                  class="rounded-circle img-fluid border" width="150">
-                            <button class="btn text-white mt-3 w-100" style="background: #0C0F24;">Thay đổi ảnh</button>
+                            <button class="btn text-white mt-3 w-100" style="background: #0C0F24;">Change avatar</button>
                         </div>
                         <!-- User Information -->
                         <div class="col-md-8">
-                            <h5 class="fw-bold">Thông tin cá nhân</h5>
+                            <h5 class="fw-bold">Personal Information</h5>
                             <div class="mb-3">
-                                <label for="userName" class="form-label">Họ và Tên:</label>
-                                <input type="text" class="form-control" id="userName" value="Nguyễn Văn A" disabled>
+                                <label for="userName" class="form-label">Username:</label>
+                                <input type="text" class="form-control" id="userName" value="{{ current_user.username }}"
+                                       disabled>
                             </div>
                             <div class="mb-3">
-                                <label for="userCCCD" class="form-label">Số căn cước công dân (CCCD):</label>
-                                <input type="text" class="form-control" id="userCCCD" value="123456789012" disabled>
+                                <label for="userCCCD" class="form-label">Identification number (CCCD):</label>
+                                <input type="text" class="form-control" id="userCCCD"
+                                       value="{{ customer.identification_card }}" disabled>
                             </div>
                             <div class="mb-3">
-                                <label for="userGender" class="form-label">Giới tính:</label>
+                                <label for="userGender" class="form-label">Gender:</label>
                                 <select class="form-select" id="userGender" disabled>
-                                    <option selected>Nam</option>
-                                    <option>Nữ</option>
-                                    <option>Khác</option>
+                                    <option value="male" {% if current_user.gender|string == 'male' %} selected {% endif %}>male</option>
+                                    <option value="female" {% if current_user.gender|string == 'female' %} selected {% endif %}>female</option>
+                                    <option value="other" {% if current_user.gender|string == 'other' %} selected {% endif %}>other</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="isForeigner" class="form-label">Người nước ngoài:</label>
+                                <label for="isForeigner" class="form-label">Foreigner?:</label>
                                 <select class="form-select" id="isForeigner" disabled>
-                                    <option selected>Không</option>
-                                    <option>Có</option>
+                                    <option value="Không" {% if customer.customer_type_id == 1 %} selected {% endif %}>No</option>
+                                    <option value="Có" {% if customer.customer_type_id == 2 %} selected {% endif %}>Yes</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="userEmail" class="form-label">Email:</label>
-                                <input type="email" class="form-control" id="userEmail" value="example@gmail.com"
+                                <input type="email" class="form-control" id="userEmail" value="{{ current_user.email }}"
                                        disabled>
                             </div>
                             <div class="mb-3">
-                                <label for="userPhone" class="form-label">Số Điện Thoại:</label>
-                                <input type="text" class="form-control" id="userPhone" value="0123456789" disabled>
+                                <label for="userPhone" class="form-label">Phone number:</label>
+                                <input type="text" class="form-control" id="userPhone" value="{{ current_user.phone }}"
+                                       disabled>
                             </div>
-                            <div class="mb-3">
-                                <label for="userAddress" class="form-label">Địa Chỉ:</label>
-                                <textarea class="form-control" id="userAddress" rows="2" disabled>123 Đường ABC, Quận XYZ, Thành phố HCM</textarea>
-                            </div>
-                            <button class="btn w-100 text-white" style="background: #0C0F24;">Chỉnh sửa thông tin</button>
+                            <button onclick="window.location.href='{{ url_for('edit_account') }}'" class="btn w-100 text-white" style="background: #0C0F24;">Edit Information
+                            </button>
                         </div>
                     </div>
                 </div>

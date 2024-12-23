@@ -1,9 +1,79 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-{% if current_user.is_authenticated%}
+{% if current_user.is_authenticated  %}
 <h1 class="text-success">CHÀO MỪNG {{ current_user.username }} ĐẾN TRANG QUẢN TRỊ HotelWeb</h1>
-{% else%}
+<br>
+<div style="justify-content:center" class="row text-center">
+    <br>
+    <h3 class="text-center text-danger">THÔNG TIN CHUNG VỀ PHÒNG</h3>
+    <div class="col-md-8 col-xs-12">
+        <table class="table">
+            <tr>
+                <th>STT</th>
+                <th>Tên loại phòng</th>
+                <th>Số lượng phòng</th>
+            </tr>
+            {% for r in stats_room %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <canvas id="myChart_3"></canvas>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let labels = []
+    let info = []
+    let colors = []
+    let borderColors = []
+    let r, g, b;
+
+    {% for m in stats_room %}
+
+            labels.push('{{ m[1]}}')
+            info.push({{ m[2]}})
+
+            r = parseInt(Math.random() * 255)
+            g = parseInt(Math.random() * 255)
+            b = parseInt(Math.random() * 255)
+
+            colors.push(`rgba(${r}, ${g}, ${b}, 0.2)`)
+            borderColors.push(`rgba(${r}, ${g}, ${b}, 1)`)
+
+    {% endfor %}
+
+    window.onload = function () {
+        const ctx = document.getElementById('myChart_3');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số lượng phòng',
+                    data: info,
+                    backgroundColor: colors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+
+{% else %}
 <h1 class="text-center text-success mt-1">Đăng nhập quản trị</h1>
 <form method="post" action="/login-admin">
     <div class="form-floating mb-3 mt-3">

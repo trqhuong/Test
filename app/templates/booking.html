@@ -1,7 +1,6 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<!-- Hero Section -->
 <section class="hero position-relative text-center text-white" style="height: 400px; overflow: hidden;">
     <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
     <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
@@ -20,6 +19,9 @@
 </section>
 
 <div class="container mt-5">
+    <div class="alert alert-danger error" style="display: none">
+        <strong>Error!</strong> One of the three customers has duplicate ID cards.
+    </div>
     {#
     <div class="row">#}
         {% if err_message and err_message.get('err_not_exist') %}
@@ -32,7 +34,21 @@
                 <strong>Info!</strong> A room can accommodate a maximum of 3 people.
             </div>
         </div>
+        <form>
+            <label>
+                <input type="radio" name="choice" value="Option 1">
+                Đặt
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="choice" value="Option 2">
+                Thuê
+            </label>
+            <br>
+        </form>
         <form action="/reservation" method="post" class="container mt-5">
+            <div class="popup"></div>
+
             <div class="row">
                 <!-- Room Details -->
                 <div class="col-md-4">
@@ -61,9 +77,9 @@
                                             <input class="cb" type="checkbox">
                                             <span class="slider"
                                                   onclick="autoFill('{{ name }}',
-                                            '{{ identification_card }}',
-                                            '{{ customer_type }}')">
-                                        </span>
+                                                              '{{ identification_card }}',
+                                                              '{{ customer_type }}')">
+                                                </span>
                                         </label>
                                     </div>
                                     {% endif %}
@@ -75,14 +91,11 @@
                                 <div class="mb-2">
                                     <label for="id" class="form-label">Identification number:</label>
                                     <input type="text" id="id" class="form-control" name="identification_card" required>
-                                    {% if error_message and error_message.get('err_identification_card') %}
-                                    <p class="text-danger error-message">{{ error_message['err_identification_card']
-                                        }}</p>
-                                    {% endif %}
+                                    <p class="text-danger" style="display: none; font-style: italic"></p>
                                 </div>
                                 <div style="text-align: left">
                                     <p>Chosse Customer Type</p>
-                                    <select id="type" class="form-select rounded-0" name="customer_type"
+                                    <select id="type" class="form-select rounded-0 customer_type" name="customer_type"
                                             style="height: 40px;">
                                         {% for item in list_customer_type %}
                                         <option value="{{ item.type }}">{{ item.type }}</option>
@@ -92,51 +105,6 @@
 
                             </div>
                         </div>
-                        {% if name_check and identification_card_check and customer_type_check %}
-                        {% for i in range(1, length) %}
-                        <div class="col-md-6 mb-3 customer-item">
-                            <div class="p-3 customer-update" style="background: #D9D9D9;">
-                                <div class="row">
-                                    <h6 class="col-md-9">Customer {{ i }}:</h6>
-                                    <button type="button" class="btn btn-danger col-md-3 delete-customer">
-                                        Delete
-                                    </button>
-                                </div>
-                                <div class="mb-2">
-                                    <label for="name" class="form-label">Name:</label>
-                                    <input type="text" id="name{{ i }}" class="form-control name" name="name"
-                                           value="{{ name[i] }}" required>
-                                </div>
-                                <div class="mb-2">
-                                    <label for="id" class="form-label">Identification number:</label>
-                                    <input type="text" id="id{{ i }}" class="form-control id"
-                                           name="identification_card" value="{{ identification_card[i] }}"
-                                           required>
-                                </div>
-                                <div style="text-align: left">
-                                    <p>Chosse Customer Type</p>
-                                    <select id="type${count}" class="form-select rounded-0" name="customer_type"
-                                            style="height: 40px;">
-                                        <option value="Domestic"
-                                                {% if customer_type[i]==
-                                        'Domestic' %}
-                                        selected
-                                        {% endif %}
-                                        >Domestic
-                                        </option>
-                                        <option value="Foreign"
-                                                {% if customer_type[i]==
-                                        'Foreign' %}
-                                        selected
-                                        {% endif %}
-                                        >Foreign
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        {% endif %}
                     </div>
 
                     <!-- Add Customer Button -->
@@ -150,17 +118,20 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="checkin" class="form-label">Check-in:</label>
-                            <input type="date" id="checkin" class="form-control rounded-0 text-center"
-                                   style="background: #D9D9D9;" min="{{ date_today }}" value="{{ date_today }}">
+                            <input type="datetime-local" id="checkin" class="form-control rounded-0 text-center"
+                                   style="background: #D9D9D9;"
+                                   value="{{ checkin }}" readonly>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="checkout" class="form-label">Check-out:</label>
-                            <input type="date" id="checkout" class="form-control rounded-0 text-center"
-                                   style="background: #D9D9D9; " min="{{ date_today }}" required>
+                            <input type="datetime-local" id="checkout" class="form-control rounded-0 text-center"
+                                   style="background: #D9D9D9; " value="{{ checkout }}" readonly>
                         </div>
                     </div>
                     <div class="text-end">
-                        <button type="submit" class="btn rounded-0" style="background: #D9D9D9">BOOK</button>
+                        <button type="submit" class="btn rounded-0" style="background: #D9D9D9"
+                                onclick="validate(event, {{ room.id }})">BOOK
+                        </button>
                     </div>
                 </div>
             </div>
