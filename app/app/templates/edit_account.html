@@ -1,0 +1,51 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow border-0 rounded">
+                <div class="card-header text-white text-center py-3" style="background: #0C0F24;">
+                    <h4 class="mb-0">Edit {{ current_user.name }} Information</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('edit_account') }}">
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Username:</label>
+                            <input type="text" class="form-control" id="userName" name="username" value="{{ current_user.username }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="userCCCD" class="form-label">Identification number (CCCD):</label>
+                            <input type="text" class="form-control" id="userCCCD" name="cccd" value="{{ customer.identification_card }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="userGender" class="form-label">Gender:</label>
+                            <select class="form-select" id="userGender" name="gender">
+                                <option value="male" {% if current_user.gender|string == 'male' %} selected {% endif %}>male</option>
+                                <option value="female" {% if current_user.gender|string == 'female' %} selected {% endif %}>female</option>
+                                <option value="other" {% if current_user.gender|string == 'other' %} selected {% endif %}>other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="isForeigner" class="form-label">Foreigner?:</label>
+                            <select class="form-select" id="isForeigner" name="is_foreigner">
+                                <option value="Không" {% if customer.customer_type_id == 1 %} selected {% endif %}>No</option>
+                                <option value="Có" {% if customer.customer_type_id == 2 %} selected {% endif %}>Yes</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userEmail" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="userEmail" name="email" value="{{ current_user.email }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="userPhone" class="form-label">Phone number:</label>
+                            <input type="text" class="form-control" id="userPhone" name="phone" value="{{ current_user.phone }}">
+                        </div>
+                        <button type="submit" class="btn w-100 text-white" style="background: #0C0F24;">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

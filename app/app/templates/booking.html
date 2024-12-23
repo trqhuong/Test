@@ -1,0 +1,142 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<section class="hero position-relative text-center text-white" style="height: 400px; overflow: hidden;">
+    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
+    <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
+    <div class="position-absolute top-50 start-50 translate-middle w-100">
+        <h2 class="fw-bold" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome to LMAO</h2>
+        <h1 class="display-4 fw-bold"
+            style="font-size: 3rem; font-family: 'Arial', sans-serif;">
+            The Best Hotel</h1>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <p class="mb-0"
+                   style="font-size: 70px; font-weight: Arial;">Booking</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="alert alert-danger error" style="display: none">
+        <strong>Error!</strong> One of the three customers has duplicate ID cards.
+    </div>
+    {#
+    <div class="row">#}
+        {% if err_message and err_message.get('err_not_exist') %}
+        <div class="alert alert-success">
+            <strong>Error!</strong> {{ err_message['err_not_exist'] }}
+        </div>
+        {% endif %}
+        <div class="info" style="display: none">
+            <div class="alert alert-info">
+                <strong>Info!</strong> A room can accommodate a maximum of 3 people.
+            </div>
+        </div>
+        <form>
+            <label>
+                <input type="radio" name="choice" value="Option 1">
+                Đặt
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="choice" value="Option 2">
+                Thuê
+            </label>
+            <br>
+        </form>
+        <form action="/reservation" method="post" class="container mt-5">
+            <div class="popup"></div>
+
+            <div class="row">
+                <!-- Room Details -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="{{ room.image }}" alt="Room Image"
+                             class="card-img-top">
+                        <div class="card-body text-white" style="background: #03204C9C;">
+                            <h5 class="card-title">{{ room.name }}</h5>
+                            <p class="card-text">Room Type: {{ room.room_type.name }}</p>
+                            <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Information -->
+                <div class="col-md-8 mb-5">
+                    <div class="row list-customer">
+                        <div class="col-md-6 mb-3 customer-item">
+                            <div class="p-3 flex" style="background: #D9D9D9;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h6>Customer 1:</h6>
+                                    {% if current_user.role|string == 'Role.CUSTOMER' %}
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span style="font-style: italic">Auto fill your information</span>
+                                        <label class="switch" style="transform: scale(0.8);">
+                                            <input class="cb" type="checkbox">
+                                            <span class="slider"
+                                                  onclick="autoFill('{{ name }}',
+                                                              '{{ identification_card }}',
+                                                              '{{ customer_type }}')">
+                                                </span>
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-2">
+                                    <label for="name" class="form-label">Name:</label>
+                                    <input type="text" id="name" class="form-control" name="name" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="id" class="form-label">Identification number:</label>
+                                    <input type="text" id="id" class="form-control" name="identification_card" required>
+                                    <p class="text-danger" style="display: none; font-style: italic"></p>
+                                </div>
+                                <div style="text-align: left">
+                                    <p>Chosse Customer Type</p>
+                                    <select id="type" class="form-select rounded-0 customer_type" name="customer_type"
+                                            style="height: 40px;">
+                                        {% for item in list_customer_type %}
+                                        <option value="{{ item.type }}">{{ item.type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Customer Button -->
+                    <div class="mb-3 text-end">
+                        <button class="btn rounded-0" style="background: #D9D9D9;">
+                            <a href="javascripts:;" onclick="addCustomer()">+ Add customer</a>
+                        </button>
+                    </div>
+
+                    <!-- Check-in/Check-out and Booking -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="checkin" class="form-label">Check-in:</label>
+                            <input type="datetime-local" id="checkin" class="form-control rounded-0 text-center"
+                                   style="background: #D9D9D9;"
+                                   value="{{ checkin }}" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="checkout" class="form-label">Check-out:</label>
+                            <input type="datetime-local" id="checkout" class="form-control rounded-0 text-center"
+                                   style="background: #D9D9D9; " value="{{ checkout }}" readonly>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn rounded-0" style="background: #D9D9D9"
+                                onclick="validate(event, {{ room.id }})">BOOK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="../static/js/main.js"></script>
+    {% endblock %}

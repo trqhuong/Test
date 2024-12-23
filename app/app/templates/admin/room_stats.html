@@ -1,0 +1,100 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+
+    <h1 class="text-center text-danger">Thống kê tần suất sử dụng phòng</h1>
+    <div style="justify-content: center;" class="row">
+        <div class="col-md-8 col-xs-12">
+            <table class="table text-center">
+                <form>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin: 0 auto; margin-bottom: 1rem;"
+                         class="col-md-10 col-xs-12 form-group">
+                        <input style="display: inline-block;" type="number" min="1" max="12" class="form-control"
+                               name="month"
+                               placeholder="Input MONTH {{ month }}">
+                        <input style="display: inline-block; margin-left: 15px;" type="number" min="2020"
+                               class="form-control"
+                               name="year"
+                               placeholder="Input YEAR {{ year }}">
+                        <input style="margin-left: 15px; display: inline-block;" type="submit" value="Submit"
+                               class="btn btn-info">
+                    </div>
+                </form>
+                <tr>
+                    <th>STT</th>
+                    <th> Phòng</th>
+                    <th>Số ngày Thuê</th>
+                    <th>Tỷ Lệ</th>
+                </tr>
+                {% for m in stats %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ m[0] }}</td>
+                        <td>
+                            {% if m[1] %}
+                                {{ m[1] }}
+                            {% else %} 0
+                            {% endif %}
+                        </td>
+                        <td>{% if m[2] %}
+                            {{ m[2] }} %
+                        {% else %} 0 %
+                        {% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <canvas id="myChart_2"></canvas>
+        </div>
+        >
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let labels = []
+        let info = []
+        let colors = []
+        let borderColors = []
+        let r, g, b;
+
+        {% for m in stats %}
+            {%if m[1] %}
+
+                labels.push('{{ m[0]}}')
+                info.push({{ m[1]}})
+
+                r = parseInt(Math.random() * 255)
+                g = parseInt(Math.random() * 255)
+                b = parseInt(Math.random() * 255)
+
+                colors.push(`rgba(${r}, ${g}, ${b}, 0.2)`)
+                borderColors.push(`rgba(${r}, ${g}, ${b}, 1)`)
+
+            {% endif%}
+        {% endfor %}
+
+        window.onload = function () {
+            const ctx = document.getElementById('myChart_2');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu theo tháng',
+                        data: info,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+{% endblock %}
+
