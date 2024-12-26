@@ -1,90 +1,120 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero text-center text-white" style="height: 400px; overflow: hidden;">
-    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid w-100">
-    <div class="position-absolute top-50 start-50 translate-middle w-100">
-        <h2 class="fw-bold mb-1" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome to LMAO</h2>
-        <h1 class="display-4 fw-bold" style="font-size: 3rem; font-family: 'Arial', sans-serif;">The Best Hotel</h1>
-        <div class="d-flex justify-content-center row fs-4 w-100">
-            <div class="col-auto">
-                <p class="mb-0"
-                   style="height: 350px; font-size: 70px; font-weight: Arial;">Reservation</p>
+    <!-- Hero Section -->
+    <section class="hero text-center text-white" style="height: 400px; overflow: hidden;">
+        <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid w-100">
+        <div class="position-absolute top-50 start-50 translate-middle w-100">
+            <h2 class="fw-bold mb-1" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome to LMAO</h2>
+            <h1 class="display-4 fw-bold" style="font-size: 3rem; font-family: 'Arial', sans-serif;">The Best Hotel</h1>
+            <div class="d-flex justify-content-center row fs-4 w-100">
+                <div class="col-auto">
+                    {% if act == 'Reservation' %}
+                        <p class="mb-0"
+                           style="height: 350px; font-size: 95px; font-weight: Arial;">Reservation
+                        </p>
+                    {% else %}
+                        <p class="mb-0"
+                           style="height: 350px; font-size: 95px; font-weight: Arial;">Rental
+                        </p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<div class="container mb-5 mt-5">
-    <!-- Header -->
-    <div class="card-header text-center header-title py-3 text-white" style="background: #0C0F24;">
-        <h4 class="mb-0 fs-2">Reservation Check</h4>
-    </div>
-    <!-- Reservation Check Card -->
-    <div class="card shadow border-0 px-4">
-        <!-- Info -->
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered">
-                <thead class="table-light">
-                <tr>
-                    <th scope="col">Booking: {{ customer.name }}</th>
-                    <th scope="col">Room: {{ room.name }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Check-in time: {{ session['room_reservation_form']['check_in_date'] }}</td>
-                    <td>Check-out time: {{ session['room_reservation_form']['check_out_date'] }}</td>
-                </tr>
-                </tbody>
-            </table>
+    <div class="container mb-5 mt-5">
+        <!-- Header -->
+        <div class="card-header text-center header-title py-3 text-white" style="background: #0C0F24;">
+            {% if act == 'Reservation' %}
+                <h4 class="mb-0 fs-2">Reservation Check</h4>
+            {% else %}
+                <h4 class="mb-0 fs-2">Room Rental Form</h4>
+            {% endif %}
         </div>
+        <!-- Reservation Check Card -->
+        <div class="card shadow border-0 px-4">
+            <!-- Info -->
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Booking: {{ session['customer']['name'] }}</th>
+                        <th scope="col">Room: {{ room.name }}</th>
 
-        <!-- Customer Info Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="table-light">
-                <tr>
-                    <th scope="col">Order</th>
-                    <th scope="col">Customer</th>
-                    <th scope="col">Customer-type</th>
-                    <th scope="col">Identification</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>{{ customer.name }}</td>
-                    <td>{{ customer.customer_type.type }}</td>
-                    <td>{{ customer.identification_card }}</td>
-                </tr>
+                        {% if current_user.role|string == "Role.RECEPTIONIST" %}
+                            <th scope="col">Receptionist</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Check-in time: {{ session['checkin'] }}</td>
+                        <td>Check-out time: {{ session['checkout'] }}</td>
 
-                {% for i in range(0, length) %}
-                <tr>
-                    <td>{{ i + 2 }}</td>
-                    <td>{{ session['guest'][i]['name'] }}</td>
-                    <td>{{ session['guest'][i]['customer_type'] }}</td>
-                    <td>{{ session['guest'][i]['identification_card'] }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                        {% if current_user.role|string == "Role.RECEPTIONIST" %}
+                            <td>{{ current_user.name }}</td>
+                        {% endif %}
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Customer Info Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Customer-type</th>
+                        <th scope="col">Identification</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>{{ session['customer']['name'] }}</td>
+                        <td>{{ session['customer']['customer_type'] }}</td>
+                        <td>{{ session['customer']['identification_card'] }}</td>
+                    </tr>
+
+                    {% for i in range(0, length) %}
+                        <tr>
+                            <td>{{ i + 2 }}</td>
+                            <td>{{ session['guest'][i]['name'] }}</td>
+                            <td>{{ session['guest'][i]['customer_type'] }}</td>
+                            <td>{{ session['guest'][i]['identification_card'] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if act == 'Reservation' %}
+                <!-- Total Price and Pay Button -->
+                <form method="post" action="/payment" class="row align-items-center mt-4">
+                    <div class="col-md-9">
+                        <h5><strong>Total
+                            Price:</strong> {{ "{:,.0f}".format(session['room_reservation_form']['total_amount']) }} VNĐ
+                        </h5>
+                        <h5><strong style="color: red">Deposit
+                            Payment:</strong> {{ "{:,.0f}".format(session['room_reservation_form']['deposit']) }} VNĐ
+                        </h5>
+                    </div>
+                    <div class="col-md-3 text-end mb-2">
+                        <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">PAY
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <form method="post">
+                    <div class="col-md-3 text-end mb-2">
+                        <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">EXPORT</button>
+                    </div>
+                </form>
+            {% endif %}
+
         </div>
-
-        <!-- Total Price and Pay Button -->
-        <form method="post" action="/payment" class="row align-items-center mt-4">
-            <div class="col-md-9">
-                <h5><strong>Total Price:</strong> {{ "{:,.0f}".format(session['room_reservation_form']['total_amount'])
-                    }}$</h5>
-                <h5><strong style="color: red">Deposit Payment:</strong> {{
-                    "{:,.0f}".format(session['room_reservation_form']['deposit']) }}$</h5>
-            </div>
-            <div class="col-md-3 text-end mb-2">
-                <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">PAY
-                </button>
-            </div>
-        </form>
     </div>
-</div>
 {% endblock %}

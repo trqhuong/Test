@@ -1,10 +1,12 @@
-from app import app, db
+from app import app, db, dao
 import utils
-from flask import redirect, request, render_template
+from flask import redirect, request
 from flask_admin import Admin, BaseView, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from app.models import Room, RoomType, RoomRegulation, CustomerRegulation, User, Role
+from app.models import Room, RoomType, RoomRegulation, CustomerRegulation, User, Role,RoomRentalForm,Bill,RoomReservationForm
 from flask_login import current_user, logout_user
+import hashlib
+from sqlalchemy.sql import exists, and_
 
 
 class MyAdminIndexView(AdminIndexView):
@@ -20,9 +22,8 @@ class AuthenticatedView(ModelView):
     def is_accessible(self):
         if not current_user.is_authenticated or current_user.role != Role.ADMIN:
             logout_user()
-            return False  # chặn quyền truy cập vào các mục
+            return False
         return True
-        # return current_user.is_authenticated and current_user.role.__eq__(Role.ADMIN)
 
 
 class UserView(AuthenticatedView):
@@ -30,35 +31,101 @@ class UserView(AuthenticatedView):
     column_searchable_list = ['username']
     column_filters = ['role']
     column_editable_list = ['phone']
-    can_export = True
+    form_excluded_columns = [
+        'room',
+        'room_regulation',
+        'customer_regulation',
+        'room_reservation_form',
+        'bill',
+        'room_rental_from',
+        'customer'
+    ]
 
+    def on_model_change(self, form, model, is_created):
+        if not form.password.data:
+            raise ValueError("Mật khẩu không được để trống")
+        else:
+            model.password = hashlib.md5(form.password.data.encode('utf-8')).hexdigest()
+        super(UserView, self).on_model_change(form, model, is_created)
 
 
 class RoomView(AuthenticatedView):
-    column_list = ['id', 'name', 'image', 'room_type_id']
+    column_list = ['id', 'name', 'image', 'room_type_id','Room_status','Room_price']
     column_searchable_list = ['name']
     column_filters = ['id', 'name']
     column_editable_list = ['name', 'image']
+    form_excluded_columns = [
+        'room_reservation_from',
+        'room_rental_from',
+        'comment',
+        'user' #lỗi bắt buộc nhập
+    ]
     can_export = True
+    def get_room_status(self, room):
+        session = self.session
+        # Kiểm tra trạng thái phiếu Thuê
+        in_use = session.query(exists().where(
+            and_(RoomRentalForm.room_id == room.id, RoomRentalForm.status == 'IN_USE')
+        )).scalar()
+        # Kiểm tra trạng thái phiếu đặt
+        confirmed = session.query(exists().where(
+            and_(RoomReservationForm.room_id == room.id, RoomReservationForm.status == 'CONFIRMED')
+        )).scalar()
+        # Xác định trạng thái
+        if in_use or confirmed:
+            return "Rented"
+        else:
+            return "Available"
+
+    def trang_thai_phong_formatter(view, context, model, name):
+        return view.get_room_status(model)
+
+    # Định nghĩa formatter cho cột room_price
+    column_formatters = {
+        'Room_status': trang_thai_phong_formatter,
+        'Room_price': lambda view, context, model, name: (
+            f"{model.room_type.price:,.0f} VND" if model.room_type else 'N/A'
+        )
+    }
+
 
 
 class RoomTypeView(AuthenticatedView):
     column_list = ['id', 'name', 'price', 'room']
+    column_labels = {
+        'id': 'ID',
+        'name': 'Name',
+        'price': 'Price',
+        'room': 'RoomDisplay'  # Đặt nhãn cho cột mới
+    }
     column_filters = ['name']
     column_editable_list = ['name']
     can_export = True
+    form_excluded_columns = [
+        'room',
+        'room_regulation'
+    ]
+    def _format_rooms(view, context, model, name):
+        return ', '.join([room.name for room in model.room])
+    column_formatters = {
+        'room': _format_rooms,
+        'price': lambda v, c, m, p: f"{m.price:,.0f} VND"
+    }
 
 
 class RoomRegulationView(AuthenticatedView):
     column_list = ['id', 'number_of_guests', 'room_type_id', 'rate']
-    column_editable_list = ['number_of_guests','rate']
-    can_export = True
+    column_editable_list = ['rate','number_of_guests']
+    form_excluded_columns = [
+        'user' #lỗi bắt buộc nhập
+    ]
 
 
 class CustomerRegulationView(AuthenticatedView):
     column_list = ['id', 'Coefficient', 'customer_type_id']
-    column_editable_list =['Coefficient']
-    can_export = True
+    form_excluded_columns = [
+        'user' #lỗi bắt buộc nhập
+    ]
 
 
 class AuthenticatedBaseView(BaseView):

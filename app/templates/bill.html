@@ -1,0 +1,90 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero text-center text-white" style="height: 400px; overflow: hidden;">
+    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid w-100">
+    <div class="position-absolute top-50 start-50 translate-middle w-100">
+        <h2 class="fw-bold mb-1" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome to LMAO</h2>
+        <h1 class="display-4 fw-bold" style="font-size: 3rem; font-family: 'Arial', sans-serif;">The Best Hotel</h1>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <p class="mb-0"
+                   style="height: 350px; font-size: 95px; font-weight: Arial;">Payment Invoice</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mb-5 mt-5">
+        <!-- Header -->
+        <div class="card-header text-center header-title py-3 text-white" style="background: #0C0F24;">
+            <h4 class="mb-0 fs-2">Payment Check</h4>
+        </div>
+        <!-- Reservation Check Card -->
+        <div class="card shadow border-0 px-4">
+            <!-- Info -->
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Name: {{ room_rental_form.customer.name }}</th>
+                        <th scope="col">Room: {{ room_rental_form.room.name }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Check-in time: {{ room_rental_form.check_in_date }}</td>
+                        <td>Check-out time: {{ room_rental_form.check_out_date }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Customer-type</th>
+                        <th scope="col">Identification</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>{{ room_rental_form.customer.name }}</td>
+                        <td>{{ room_rental_form.customer.customer_type.type }}</td>
+                        <td>{{ room_rental_form.customer.identification_card }}</td>
+                    </tr>
+
+                    {% for guest in room_rental_form.guest %}
+                        <tr>
+                            <td>{{ loop.index + 1 }}</td>
+                            <td>{{ guest.name }}</td>
+                            <td>{{ guest.customer_type.type }}</td>
+                            <td>{{ guest.identification_card }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <form method="post" action="/payment" class="row align-items-center mt-4">
+                <div class="col-md-9">
+                    {% if room_reservation_from %}
+                        <h5><strong>Total Price:</strong>{{ "{:,.0f}".format(room_reservation_form.total_amount) }}</h5>
+                        <h5><strong>Deposit paid:</strong>{{ "{:,.0f}".format(room_reservation_form.deposit) }}</h5>
+                    {% endif %}
+                    <h5 class="text-danger"><strong>Amount to be paid: </strong>{{ "{:,.0f}".format(room_rental_form.total_amount) }}</h5>
+                </div>
+                <input type="hidden" name="payment_type" value="rental">
+                <input type="hidden" name="rental_id" value="{{ room_rental_form.id }}">
+                <div class="col-md-3 text-end mb-2">
+                    <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">PAY</button>
+                </div>
+            </form>
+        </div>
+</div>
+{% endblock %}

@@ -6,8 +6,7 @@ from app.models import *
 
 def total_price(price, day, length, list_customer_type, room_id):
     total = price * day
-    print(total)
-    if length > 1:  # Nếu tồn tại 3 khách
+    if length > 2:  # Nếu tồn tại 3 khách
         room_regulation = db.session.query(Room.id, RoomRegulation.rate). \
             join(RoomType, Room.room_type_id == RoomType.id). \
             join(RoomRegulation, RoomType.id == RoomRegulation.room_type_id). \
@@ -29,19 +28,21 @@ def total_price(price, day, length, list_customer_type, room_id):
 
 def revenue_statistics(kw=None, year=None, month=None):
     with app.app_context():
-        # Tính tổng số bill và lọc
-        if not kw and not year and not month:
-            count_bill = Bill.query.count()
-        elif kw:  # lọc theo từ khóa
-            count_bill = Bill.query.count()
+        #Tính tổng số bill và lọc
+        if not kw and not year and not month :
+            count_bill=Bill.query.count()
+        elif kw:#lọc theo từ khóa
+            count_bill=Bill.query.count()
         elif month:
-            count_bill = Bill.query.filter(
-                extract('month', Bill.created_date) == month)
+            count_bill=Bill.query.filter(
+                extract('month',Bill.created_date)==month)
             if year:
-                count_bill = count_bill.filter(extract('year', Bill.created_date) == year)
-            count_bill = count_bill.count()
+                count_bill=count_bill.filter(extract('year', Bill.created_date) == year)
+            count_bill=count_bill.count()
         else:
-            count_bill = Bill.query.filter(extract('year', Bill.created_date) == year).count()
+            count_bill=Bill.query.filter(extract('year',Bill.created_date)==year).count()
+
+
 
         revenue = db.session.query(
             RoomType.name,
@@ -52,24 +53,24 @@ def revenue_statistics(kw=None, year=None, month=None):
             .join(Room, Room.room_type_id.__eq__(RoomType.id), isouter=True) \
             .join(RoomRentalForm, RoomRentalForm.room_id.__eq__(Room.id), isouter=True) \
             .join(Bill, Bill.room_rental_form_id.__eq__(RoomRentalForm.id), isouter=True) \
-            .group_by(RoomType.id) \
+            .group_by(RoomType.name) \
             .order_by(RoomType.id)
 
-        # lọc doanh thu
+        #lọc doanh thu
         if month:
             revenue = revenue.filter(
                 extract('month', Bill.created_date) == month)
 
         if year:
-            revenue = revenue.filter(
-                extract('year', Bill.created_date) == year)
+            revenue  = revenue .filter(
+                extract('year',Bill.created_date) == year)
 
         if kw:
-            revenue = revenue.filter(
+            revenue  = revenue .filter(
                 RoomType.name.contains(kw))
 
-        return revenue.all()
 
+        return revenue.all()
 
 def stats(kw=None, year=None, month=None):
     with app.app_context():
@@ -88,10 +89,9 @@ def stats(kw=None, year=None, month=None):
                 extract('year', Bill.created_date) == year)
 
         # Lấy tổng số ngày thuê
-        total_days_result = total_days.first()  # Lấy kết quả đầu tiên của truy vấn.
-        total = total_days_result[
-            0] if total_days_result else 0  # Truy cập giá trị tổng số ngày thuê (do truy vấn trả về một tuple
-        # Nếu không có kết quả, đặt total=0
+        total_days_result = total_days.first() #Lấy kết quả đầu tiên của truy vấn.
+        total = total_days_result[0] if total_days_result else 0 # Truy cập giá trị tổng số ngày thuê (do truy vấn trả về một tuple
+                                                                 # Nếu không có kết quả, đặt total=0
 
         # print(f"Tổng số ngày thuê phòng: {total} ngày")
 
@@ -105,11 +105,10 @@ def stats(kw=None, year=None, month=None):
                     func.coalesce(func.sum(
                         func.datediff(RoomRentalForm.check_out_date, RoomRentalForm.check_in_date)
                     ), 0) / total * 100
-            ), 2)  # func.round hiện 2 số sau dấu phẩy
-        ).join(RoomRentalForm, RoomRentalForm.room_id == Room.id, isouter=True) \
-            .join(Bill, Bill.room_rental_form_id.__eq__(RoomRentalForm.id), isouter=True) \
-            .group_by(Room.name)
-        # lấy những phiếu thuê phòng khi đã có Bill
+            ), 2) #func.round hiện 2 số sau dấu phẩy
+        ).join(RoomRentalForm, RoomRentalForm.room_id == Room.id, isouter=True)\
+        .join(Bill, Bill.room_rental_form_id.__eq__(RoomRentalForm.id), isouter=True)\
+        .group_by(Room.name)
 
         # Bộ lọc theo điều kiện
         if month:
@@ -131,5 +130,4 @@ def count_room_by_roomType():
         return db.session.query(RoomType.id, RoomType.name, func.count(Room.id)) \
             .join(Room, Room.room_type_id.__eq__(RoomType.id),isouter=True).group_by(RoomType.id).all()
 
-
-print(count_room_by_roomType())
+print(stats())

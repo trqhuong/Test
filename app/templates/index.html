@@ -39,7 +39,8 @@
             <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
             <div class="position-absolute top-50 start-50 translate-middle w-100">
                 <h2 class="fw-bold" style="font-size: 4rem; font-family: 'Arial', sans-serif; margin-bottom: 1rem;">
-                    Welcome to LMAO</h2>
+                    Welcome
+                    to LMAO</h2>
                 <h1 class="display-4 fw-bold"
                     style="font-size: 3rem; font-family: 'Arial', sans-serif; margin-bottom: 15rem;">The Best Hotel</h1>
                 <div class="d-flex justify-content-center row fs-4 w-100">
@@ -131,7 +132,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ room.name }}</h5>
                                 <p class="card-text">Room Type: {{ room.room_type.name }}</p>
-                                <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
+                                <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }} VNĐ</p>
                                 <div class="d-flex justify-content-end ">
                                     <a href="/room-detail/?room_id={{ room.id }}"
                                        class="btn btn-primary w-50 bg-white text-black view"
@@ -160,5 +161,24 @@
         </div>
     </form>
 
-
+    {#    <script>#}
+    {#        let saveDate = document.querySelector(".save-date")#}
+    {#        saveDate.addEventListener('click', function (event) {#}
+    {#            if(event.target.classList.contains("view")){#}
+    {#                let checkin = document.getElementById("check-in")#}
+    {#                let checkout = document.getElementById("check-out")#}
+    {##}
+    {#                fetch("/api/save_date", {#}
+    {#                    method: 'POST',#}
+    {#                    headers: {#}
+    {#                        'Content-Type': 'application/json'#}
+    {#                    },#}
+    {#                    body: JSON.stringify({#}
+    {#                        "checkin": checkin,#}
+    {#                        "checkout": checkout#}
+    {#                    })#}
+    {#                })            }#}
+    {##}
+    {#        })#}
+    {#    </script>#}
 {% endblock %}

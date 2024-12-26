@@ -5,6 +5,7 @@ from cloudinary.utils import unique
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Enum, ForeignKey, text
 from sqlalchemy.orm import relationship
 from enum import Enum as RoleEnum
+from enum import Enum as BookingStatusEnum
 from app import db, app
 from flask_login import UserMixin
 
@@ -13,6 +14,13 @@ class Role(RoleEnum):
     ADMIN = 1,
     RECEPTIONIST = 2,
     CUSTOMER = 3
+
+
+class BookingStatus(BookingStatusEnum):
+    CONFIRMED = "Confirmed",
+    IN_USE = "In use",
+    COMPLETED = "Completed",
+    CANCELLED = "Cancelled"
 
 
 class Base(db.Model):
@@ -31,8 +39,8 @@ class User(Base, UserMixin):
     gender = Column(String(6), nullable=False)
     role = Column(Enum(Role), default=Role.CUSTOMER)
     room = relationship('Room', backref='user', lazy=True)
-    # room_regulation = relationship('RoomRegulation', backref='user', lazy=True)
-    # customer_regulation = relationship('CustomerRegulation', backref='user', lazy=True)
+    room_regulation = relationship('RoomRegulation', backref='user', lazy=True)
+    customer_regulation = relationship('CustomerRegulation', backref='user', lazy=True)
     room_reservation_form = relationship('RoomReservationForm', backref='user', lazy=True)
     bill = relationship('Bill', backref='user', lazy=True)
     room_rental_from = relationship('RoomRentalForm', backref='user', lazy=True)
@@ -72,30 +80,31 @@ class RoomType(Base):
     name = Column(String(50), nullable=False, unique=True)
     price = Column(Float, nullable=False)
     room = relationship('Room', backref='room_type', lazy=True)
-    room_regulation = relationship('RoomRegulation', backref='room_type', uselist=False)
+    room_regulation = relationship('RoomRegulation', back_populates='room_type', uselist=False,
+                                   cascade='all, delete-orphan')
 
 
 class Room(Base):
     name = Column(String(50), nullable=False)
     image = Column(String(100))
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
     room_reservation_from = relationship('RoomReservationForm', backref='room', lazy=True)
     room_rental_from = relationship('RoomRentalForm', backref='room', lazy=True)
-    comment = relationship('Comment', backref='room', lazy=True,cascade='all, delete-orphan')
+    comment = relationship('Comment', backref='room', lazy=True)
 
 
 class RoomRegulation(Base):
     number_of_guests = Column(Integer, nullable=False, default=3)
-    # user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), unique=True, nullable=False)
     rate = Column(Float, nullable=False, default=0.25)
-    # room_type = relationship('RoomType', backref='room_regulation')
+    room_type = relationship('RoomType', back_populates='room_regulation')
 
 
 class CustomerRegulation(Base):
     Coefficient = Column(Float, nullable=False, default=1.5)
-    # user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_type_id = Column(Integer, ForeignKey(CustomerType.id), nullable=False, unique=True)
 
 
@@ -104,27 +113,29 @@ class RoomReservationForm(Base):
     check_out_date = Column(DateTime, nullable=False)
     deposit = Column(Float, nullable=False)
     total_amount = Column(Float, nullable=True)
+    status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.CONFIRMED)
     user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
-    room_rental_form = relationship('RoomRentalForm', backref='room_reservation_form', uselist=False)
+    room_rental_form = relationship('RoomRentalForm', backref='room_reservation_fom', uselist=False)
 
 
 class RoomRentalForm(Base):
     check_in_date = Column(DateTime, nullable=False)
     check_out_date = Column(DateTime, nullable=False)
-    deposit = Column(Float, nullable=False)
+    total_amount = Column(Float, nullable=False)
+    status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.IN_USE)
+    is_review = Column(Boolean, nullable=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
-    # bill_id = Column(Integer, ForeignKey(Bill.id), nullable=False, unique=True)
     room_reservation_form_id = Column(Integer, ForeignKey(RoomReservationForm.id), unique=True, nullable=True)
-    bill = relationship('Bill', backref='room_rental_form', lazy=True, uselist=False,cascade='all, delete-orphan')
+    bill = relationship('Bill', backref='room_rental_form', lazy=True, uselist=False)
 
 
 class Bill(Base):
     total_price = Column(Float, nullable=False)
-    created_date = Column(DateTime, nullable=False)
+    created_date = Column(DateTime, nullable=False, default=datetime.now())
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_rental_form_id = Column(Integer, ForeignKey(RoomRentalForm.id), nullable=False, unique=True)
     # room_rental_from = relationship('RoomRentalForm', backref='bill', lazy=True)
@@ -158,8 +169,10 @@ if __name__ == '__main__':
         db.session.add_all([customer_type1, customer_type2])
         db.session.commit()
         customer_type = db.session.query(CustomerType).filter(CustomerType.type.__eq__('domestic')).first()
-        user1 = User(name='Lê Hữu Hậu', username='lehuuhau',password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
-                     email='lehuuhau1231@gmail.com',phone='0378151028', gender=1, role=Role.ADMIN)
+        user1 = User(name='Lê Hữu Hậu', username='lehuuhau',
+                     password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
+                     email='lehuuhau1231@gmail.com',
+                     phone='0378151028', gender=1, role=Role.ADMIN)
         user2 = User(name='Lâm', username='huuhau', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                      email='lehuuhau@gmail.com', phone='0378151028', gender=1, role=Role.RECEPTIONIST)
         cus = Customer(name='Trần Quỳnh Hương', username='trqhuong',
@@ -181,9 +194,9 @@ if __name__ == '__main__':
 
         #         ==============================Thêm loại phòng======================================
 
-        room_type_single = RoomType(name='Single Bedroom', price=100)
-        room_type_twin = RoomType(name='Twin Bedroom', price=300)
-        room_type_double = RoomType(name='Double Bedroom', price=500)
+        room_type_single = RoomType(name='Single Bedroom', price=1000000)
+        room_type_twin = RoomType(name='Twin Bedroom', price=3000000)
+        room_type_double = RoomType(name='Double Bedroom', price=5000000)
 
         db.session.add_all([room_type_single, room_type_twin, room_type_double])
         db.session.commit()
@@ -263,28 +276,30 @@ if __name__ == '__main__':
         db.session.commit()
 
         #         ==============================Thêm quy định phòng======================================
-        room_regulation_data = [{'room_type_id': room_type_single.id, },
-                                {'room_type_id': room_type_twin.id,},
-                                {'room_type_id': room_type_double.id, }]
+        room_regulation_data = [{'room_type_id': room_type_single.id, 'user_id': user1.id},
+                                {'room_type_id': room_type_twin.id, 'user_id': user1.id},
+                                {'room_type_id': room_type_double.id, 'user_id': user1.id}]
         for regulation in room_regulation_data:
             db.session.add(RoomRegulation(**regulation))
         db.session.commit()
 
         #         ==============================Thêm quy định KH======================================
-        cus_regulation = CustomerRegulation(customer_type_id=2)
+        cus_regulation = CustomerRegulation(user_id=user1.id, customer_type_id=2)
         db.session.add(cus_regulation)
         db.session.commit()
 
         #         ==============================Thêm phiếu đặt======================================
         reservation_data = [
-            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2025, 1, 9, 17, 1),
-             'check_out_date': datetime(2025, 1, 19, 17, 1), 'deposit': 900000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': None, 'room_id': 2, 'check_in_date': datetime(2024, 12, 27, 17, 11),
-             'check_out_date': datetime(2024, 12, 29, 17, 11), 'deposit': 1500000, 'total_amount': 1000000},
-            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2024, 12, 22, 17, 12),
-             'check_out_date': datetime(2024, 12, 26, 17, 12), 'deposit': 1500000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2025, 1, 10, 17, 1),
-             'check_out_date': datetime(2025, 2, 9, 17, 1), 'deposit': 1200000, 'total_amount': 1000000}
+            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 1, 9, 17, 1),
+             'check_out_date': datetime(2024, 1, 19, 17, 1), 'deposit': 900000, 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': None, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
+             'check_out_date': datetime(2024, 3, 29, 17, 11), 'deposit': 1500000, 'total_amount': 1000000},
+            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
+             'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000, 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
+             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000, 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 12, 14, 17, 1),
+             'check_out_date': datetime(2024, 12, 16, 17, 1), 'deposit': 1200000, 'total_amount': 1000000}
         ]
 
         for data in reservation_data:
@@ -316,14 +331,14 @@ if __name__ == '__main__':
         #         ==============================Thêm phiếu thuê======================================
 
         rental_data = [
-            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2025, 1, 9, 17, 1),
-             'check_out_date': datetime(2025, 1, 19, 17, 1), 'deposit': 900000, 'room_reservation_form_id': 1},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2024, 12, 25, 17, 11),
-             'check_out_date': datetime(2024, 12, 29, 17, 11), 'deposit': 1500000},
-            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2024, 12, 22, 17, 12),
-             'check_out_date': datetime(2024, 12, 26, 17, 12), 'deposit': 1500000, 'room_reservation_form_id': 3},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2025, 1, 10, 17, 1),
-             'check_out_date': datetime(2025, 2, 9, 17, 1), 'deposit': 1200000}]
+            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 1, 9, 17, 1),
+             'check_out_date': datetime(2024, 1, 19, 17, 1), 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
+             'check_out_date': datetime(2024, 3, 29, 17, 11), 'total_amount': 3000000},
+            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
+             'check_out_date': datetime(2023, 12, 21, 17, 12), 'total_amount': 5000000},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
+             'check_out_date': datetime(2024, 2, 9, 17, 1), 'total_amount': 3000000}]
         for r in rental_data:
             rental = RoomRentalForm(**r)
             db.session.add(rental)
@@ -345,32 +360,31 @@ if __name__ == '__main__':
 
         #         ==============================Thêm hóa đơn======================================
         bill_data = [{'user_id': 3, 'room_rental_form_id': 1, 'total_price': 2000000,
-                      'created_date': datetime(2025, 1, 19, 17, 1)},
+                      'created_date': datetime(2024, 1, 19, 17, 1)},
                      {'user_id': 3, 'room_rental_form_id': 2, 'total_price': 5000000,
-                      'created_date': datetime(2024, 12, 29, 17, 11)},
+                      'created_date': datetime(2024, 3, 29, 17, 11)},
                      {'user_id': 3, 'room_rental_form_id': 3, 'total_price': 4000000,
-                      'created_date': datetime(2024, 12, 26, 17, 11)},
+                      'created_date': datetime(2023, 12, 21, 17, 11)},
                      {'user_id': 3, 'room_rental_form_id': 4, 'total_price': 1000000,
-                      'created_date': datetime(2025, 2, 9, 17, 11)}]
+                      'created_date': datetime(2024, 2, 9, 17, 11)}]
         for b in bill_data:
             bill = Bill(**b)
             db.session.add(bill)
         db.session.commit()
         #         ==============================Thêm cmt======================================
         comment_data = [{'customer_id': 1, 'content': 'Phòng này quá ok <3', 'room_id': 1,
-                         'created_date': datetime(2025, 1, 20, 17, 1)},
+                         'created_date': datetime(2024, 1, 9, 17, 1)},
                         {'customer_id': 2, 'content': 'Cũng tàm tạm, cần nâng cấp dịch vụ phòng!', 'room_id': 2,
-                         'created_date': datetime(2025, 1, 2, 17, 1)},
+                         'created_date': datetime(2024, 1, 9, 17, 1)},
                         {'customer_id': 2, 'content': 'Sẽ ghé thăm vào lần sau nếu có dịp', 'room_id': 2,
-                         'created_date': datetime(2025, 1, 9, 17, 1)},
-                        {'customer_id': 1, 'content': 'Một căn phòng đáng trải nghiệm nhất tại khách sạn, 5 sao nhé',
+                         'created_date': datetime(2024, 1, 9, 17, 1)},
+                        {'customer_id': 1, 'content': 'Một căn phòng đáng trải nghiệm nhất tại khách sạn, 5 sau nhé',
                          'room_id': 4,
-                         'created_date': datetime(2025, 2, 9, 17, 1)}]
+                         'created_date': datetime(2024, 1, 9, 17, 1)}]
         for c in comment_data:
             cmt = Comment(**c)
             db.session.add(cmt)
         db.session.commit()
-
 
 
 

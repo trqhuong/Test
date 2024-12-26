@@ -1,70 +1,116 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<!-- Navigation Tabs -->
-<div class="container mt-4">
-    <ul class="nav nav-tabs justify-content-around fs-5">
-        <li class="nav-item">
-            <a class="nav-link text-dark" style="background: #EFEFEF;" href="/nvxemphong">Reservation & Rent</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark active" style="background: #999292;" href="/nvcheckin">Check-in</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark" style="background: #EFEFEF;" href="/nvcheckout">Check-out</a>
-        </li>
-    </ul>
-</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <!-- The Modal -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
 
-<div class="container py-4">
-    <!-- Identification Section -->
-    <div class="row mb-4">
-        <div class="col-4 text-center fs-2">Identification</div>
-        <div class="col-md-8 mx-auto d-flex">
-            <input type="text" class="form-control me-2 rounded-0" placeholder="Input identification">
-            <button class="btn btn-secondary rounded-0">CHECK</button>
-        </div>
-    </div>
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">{{ category }}</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
 
-    <!-- Reservation Cards -->
-    <div class="row g-4">
-        <!-- Card 1 -->
-        <div class="col-md-6">
-            <div class="card-custom px-3" style="background: #D9D9D9;">
-                <span class="deposit-tag">Deposit (VND)</span>
-                <h5 class="mt-4 text-center fs-3">ROOMNAME RESERVATION</h5>
-                <p>Check-in date: <span class="fw-bold">dd/mm/yyyy</span></p>
-                <p>Check-out date: <span class="fw-bold">dd/mm/yyyy</span></p>
-                <p>Members:</p>
-                <ol class="list-group list-group-numbered rounded-0">
-                    <li class="list-group-item list-group-item-info">Member 1</li>
-                    <li class="list-group-item list-group-item-info">Member 2</li>
-                    <li class="list-group-item list-group-item-info">Member 3</li>
-                </ol>
-                <div class="d-flex justify-content-end pb-3">
-                    <button class="btn checkin-btn mt-3 rounded-0" style="background: #999292;">Check-in</button>
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                {{ message }}
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <!-- Navigation Tabs -->
+    <div class="container mt-4">
+        <ul class="nav nav-tabs justify-content-around fs-5">
+            <li class="nav-item">
+                <a class="nav-link text-dark active" style="background: #999292;" href="/nvcheckin">Check-in</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" style="background: #EFEFEF;" href="/nvcheckout">Check-out</a>
+            </li>
+        </ul>
+    </div>
+    <div class="popup"></div>
+    <div class="container py-4">
+        <!-- Identification Section -->
+        <form method="get" class="row mb-4">
+            <div class="col-4 text-center fs-2">Identification</div>
+            <div class="col-md-8 mx-auto d-flex">
+                <input type="text" class="form-control me-2 rounded-0" placeholder="Input identification"
+                       name="customer_id" value="{{ customer_id or '' }}">
+                <button class="btn btn-secondary rounded-0">CHECK</button>
             </div>
+        </form>
+
+        <!-- Reservation Cards -->
+        <div class="row g-4">
+            <!-- Card 1 -->
+            {% if room_reservation_form is iterable %}
+                {% for item in room_reservation_form %}
+                    <form method="get" class="col-md-6">
+                        <div class="card-custom px-3 d-flex flex-column" style="background: #D9D9D9; height: 100%;">
+                            <span class="deposit-tag text-end fw-bold"> Total amount: {{ "{:,.0f}".format(item.total_amount) }} VNĐ</span>
+                            <span class="deposit-tag text-danger text-end fw-bold"> Deposit: {{ "{:,.0f}".format(item.deposit) }} VNĐ</span>
+                            <h5 class="mt-2 text-center fs-3">{{ item.room.name }}</h5>
+                            <p class="mb-0">Check-in date: <span class="fw-bold"
+                                                    id="checkin-reservation">{{ item.check_in_date }}</span></p>
+                            <p>Check-out date: <span class="fw-bold">{{ item.check_out_date }}</span></p>
+                            <p class="mb-0">Members:</p>
+                            <span class="bi bi-person d-block fw-bold"> {{ item.customer.name }} - {{ item.customer.identification_card }}</span>
+                            {% for guest in item.guest %}
+                                    <span class="bi bi-person d-block fw-bold"> {{ guest.name }}
+                                        - {{ guest.identification_card }}</span>
+                            {% endfor %}
+                            <input type="hidden" value="{{ item.id }}" name="reservation-id">
+                            <div class="d-flex justify-content-end mt-auto pb-3">
+                                <button type="submit" class="btn checkin-btn rounded-0"
+                                        style="background: #999292;">Check-in
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                {% endfor %}
+            {% else %}
+                <form method="post" class="col-md-6">
+                        <div class="card-custom px-3" style="background: #D9D9D9;">
+                            <span class="deposit-tag"> Total amount: {{ "{:,.0f}".format(room_reservation_form.total_amount) }} VNĐ</span>
+                            <br>
+                            <span class="deposit-tag text-danger"> Deposit: {{ "{:,.0f}".format(room_reservation_form.deposit) }} VNĐ</span>
+                            <h5 class="mt-4 text-center fs-3">{{ room_reservation_form.room.name }}</h5>
+                            <p>Check-in date: <span class="fw-bold"
+                                                    id="checkin-reservation">{{ room_reservation_form.check_in_date }}</span></p>
+                            <p>Check-out date: <span class="fw-bold">{{ room_reservation_form.check_out_date }}</span></p>
+                            <p>Members:</p>
+                            <span class="bi bi-person text-success d-block fw-bold"> {{ item.customer.name }} - {{ item.customer.identification_card }}</span>
+                            {% for guest in item.guest %}
+                                    <span class="bi bi-person text-success d-block fw-bold"> {{ guest.name }}
+                                        - {{ guest.identification_card }}</span>
+                            {% endfor %}
+                            <input type="hidden" value="{{ room_reservation_form.id }}" name="reservation-id">
+                            <div class="d-flex justify-content-end pb-3">
+                                <button type="submit" class="btn checkin-btn mt-3 rounded-0"
+                                        style="background: #999292;">Check-in
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+            {% endif %}
         </div>
 
-        <!-- Card 2 -->
-        <div class="col-md-6">
-            <div class="card-custom px-3" style="background: #D9D9D9;">
-                <span class="deposit-tag">Deposit (VND)</span>
-                <h5 class="mt-4 text-center fs-3">ROOMNAME RESERVATION</h5>
-                <p>Check-in date: <span class="fw-bold">dd/mm/yyyy</span></p>
-                <p>Check-out date: <span class="fw-bold">dd/mm/yyyy</span></p>
-                <p>Members:</p>
-                <ol class="list-group list-group-numbered rounded-0">
-                    <li class="list-group-item list-group-item-info">Member 1</li>
-                    <li class="list-group-item list-group-item-info">Member 2</li>
-                    <li class="list-group-item list-group-item-info">Member 3</li>
-                </ol>
-                <div class="d-flex justify-content-end pb-3">
-                    <button class="btn checkin-btn mt-3 rounded-0" style="background: #999292;">Check-in</button>
-                </div>
-            </div>
-        </div>
+
+        
     </div>
-</div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-{% if current_user.is_authenticated  %}
+{% if current_user.is_authenticated and current_user.role|string == 'Role.ADMIN' %}
 <h1 class="text-success">CHÀO MỪNG {{ current_user.username }} ĐẾN TRANG QUẢN TRỊ HotelWeb</h1>
 <br>
 <div style="justify-content:center" class="row text-center">
